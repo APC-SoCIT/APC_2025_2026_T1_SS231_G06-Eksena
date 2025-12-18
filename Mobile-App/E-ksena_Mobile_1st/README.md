@@ -1,2 +1,1 @@
-# E-ksena_UI
-UI for sysadd
+# E-ksena
