@@ -1,20 +1,65 @@
-import React, { useEffect } from 'react';
-import App from './src/App';
-import { pingApi, setApiBaseUrl } from './services/ReportService';
+import 'react-native-url-polyfill/auto'
+import { useState, useEffect } from 'react'
+import { supabase } from './utils/supbase-real'
+import Auth from './services/SupaAuth'
+import AccountScreen from './services/AccountScreen'
+import { View, Text, StyleSheet } from 'react-native'
+import { Session } from '@supabase/supabase-js'
 
-const Root = () => {
+export default function App() {
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
-    // Replace with your PC LAN IP or a reachable tunnel (ngrok / expo tunnel)
-    setApiBaseUrl('http://192.168.1.42:3000/v1');
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setLoading(false)
+    })
 
-    (async () => {
-      const r = await pingApi();
-      console.log('pingApi result:', r);
-    })();
-  }, []);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+      setLoading(false)
+    })
 
-  return <App />;
-};
+    return () => subscription?.unsubscribe()
+  }, [])
 
-export default Root;
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    )
+  }
 
+  return (
+    <View style={styles.container}>
+      {session ? (
+        <AccountScreen 
+          session={session}
+          onSignOut={() => setSession(null)}
+        />
+      ) : (
+        <Auth />
+      )}
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  authenticated: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+})
