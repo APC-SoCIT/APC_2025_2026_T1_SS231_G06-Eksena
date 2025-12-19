@@ -14,6 +14,7 @@ Keeping packages current ensures access to the latest features and bug fixes whi
 * **Minor & Patch Updates:** Run the following to update all packages within the semver ranges defined in `package.json`:
 ```
 npm update
+npm install -g npm@11.7.0
 
 ```
 
