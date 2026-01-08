@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, Alert } from 'react-native';
-import { supabase } from '../supabase'; // Ensure this path is correct
+import { supabase } from '../../lib/supabase'; // Ensure this path is correct
 
 // 1. Define the shape of your Report/Ticket
 interface Report {

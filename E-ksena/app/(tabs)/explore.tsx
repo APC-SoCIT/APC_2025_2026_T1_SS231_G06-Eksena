@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, ScrollView } from 'react-native';
-import { supabase } from '../supabase'; 
+import { supabase } from '../../lib/supabase'; 
 
 export default function MessagingDisplay() {
   const [phone, setPhone] = useState('');
