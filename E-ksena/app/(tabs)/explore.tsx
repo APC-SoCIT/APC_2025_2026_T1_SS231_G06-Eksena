@@ -1,4 +1,4 @@
-import { supabase } from '../../supabase'; // Try adding .ts if this still shows red
+import { supabase } from '../../lib/supabase'; // Try adding .ts if this still shows red
 
 const handleSaveSMS = async (phoneNumber: string, content: string) => {
   try {
