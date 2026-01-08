@@ -1,79 +1,36 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, ScrollView } from 'react-native';
-import { supabase } from '../../lib/supabase'; 
+import { supabase } from '../../supabase'; // Try adding .ts if this still shows red
 
-export default function MessagingDisplay() {
-  const [phone, setPhone] = useState('');
-  const [message, setMessage] = useState('');
+const handleSaveSMS = async (phoneNumber: string, content: string) => {
+  try {
+    // 1. Find or Create the Conversation (Thread)
+    const { data: conv, error: convError } = await supabase
+      .from('conversations')
+      .upsert(
+        { phone_number: phoneNumber, last_message: content }, 
+        { onConflict: 'phone_number' }
+      )
+      .select()
+      .single();
 
-  const sendSMSViaGateway = async () => {
-    if (!phone || !message) {
-      // 2. Fix: Alert is capitalized in React Native
-      Alert.alert("Error", "Please fill in all fields");
-      return;
-    }
+    if (convError) throw convError;
 
-    try {
-      // LOGIC: POST to Supabase Database
-      const { error: dbError } = await supabase
-        .from('messages')
-        .insert([{ recipient_phone: phone, body: message }]);
+    // 2. Save the actual message linked to that conversation ID
+    const { error: msgError } = await supabase
+      .from('messages')
+      .insert([
+        { 
+          conversation_id: conv.id, 
+          content: content, 
+          sender: 'incoming' 
+        }
+      ]);
 
-      if (dbError) throw dbError;
+    if (msgError) throw msgError;
 
-      // LOGIC: POST to SMS Gateway API (Sample)
-      // This is where your external SMS provider link goes
-      const response = await fetch('https://api.sms-provider-example.com/v1/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer YOUR_GATEWAY_TOKEN'
-        },
-        body: JSON.stringify({
-          to: phone,
-          text: message
-        })
-      });
-
-      if (response.ok) {
-        Alert.alert("Success", "Message sent to SMS Gateway");
-        setPhone('');
-        setMessage('');
-      } else {
-        Alert.alert("Notice", "Logged to DB, but Gateway API rejected the request.");
-      }
-    } catch (error: any) {
-      Alert.alert("Database Error", error.message);
-    }
-  };
-
-  return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>SMS Gateway Dispatch</Text>
-      
-      <TextInput 
-        placeholder="Phone Number (+63...)" 
-        value={phone} 
-        onChangeText={setPhone} 
-        keyboardType="phone-pad"
-        style={{ borderWidth: 1, marginVertical: 10, padding: 8 }} 
-      />
-      
-      <TextInput 
-        placeholder="Type SMS Message..." 
-        value={message} 
-        onChangeText={setMessage} 
-        multiline
-        style={{ borderWidth: 1, height: 100, padding: 8, textAlignVertical: 'top' }} 
-      />
-
-      <View style={{ marginTop: 10 }}>
-        <Button title="Send via SMS Gateway" onPress={sendSMSViaGateway} />
-      </View>
-
-      <ScrollView style={{ marginTop: 20 }}>
-        <Text style={{ color: 'gray' }}>Note: SMS Gateway triggers a POST request to a third-party provider and logs the transaction in Supabase.</Text>
-      </ScrollView>
-    </View>
-  );
-}
+    console.log("Conversation updated and message saved!");
+  } catch (err: any) { 
+    // Using ': any' is the quickest fix for the 'unknown' error, 
+    // though 'instanceof Error' is the "cleaner" TypeScript way.
+    console.error("Save Error:", err.message || err);
+  }
+};
