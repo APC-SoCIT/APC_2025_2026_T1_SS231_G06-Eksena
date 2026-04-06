@@ -1,8 +1,33 @@
 import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Pressable,
+} from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { PrimaryButton } from '@/components/primary-button';
-import { Spacing, FontSizes, BRAND_RED, BRAND_RED_SUBTLE, TEXT_PRIMARY, TEXT_SECONDARY, WHITE, OFF_WHITE, BORDER, Radius, CardShadow } from '@/constants/theme';
+import {
+  Spacing,
+  FontSizes,
+  Fonts,
+  Radius,
+  BG_BASE,
+  BG_SURFACE,
+  BG_INPUT,
+  ACCENT_AMBER,
+  ACCENT_AMBER_SUBTLE,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_MUTED,
+  BORDER,
+  BORDER_SUBTLE,
+  RoleThemes,
+} from '@/constants/theme';
 import type { RoleThemeKey } from '@/constants/theme';
 import { registerUser } from '@/lib/registered-users';
 
@@ -59,55 +84,92 @@ export default function SignupScreen() {
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-        <View style={[styles.card, CardShadow]}>
-          <Text style={styles.title}>Responder registration</Text>
-          <Text style={styles.subtitle}>Create an account with your personal and contact information.</Text>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.card}>
+          {/* Amber accent top line */}
+          <View style={styles.cardAccent} />
 
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          <Text style={styles.title}>RESPONDER REGISTRATION</Text>
+          <Text style={styles.subtitle}>
+            Create an account with your personal and contact information.
+          </Text>
 
-          <Text style={styles.label}>Username</Text>
+          {error ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>● {error}</Text>
+            </View>
+          ) : null}
+
+          <Text style={styles.label}>USERNAME</Text>
           <TextInput
             style={styles.input}
             value={username}
             onChangeText={setUsername}
             placeholder="Choose a username"
-            placeholderTextColor={TEXT_SECONDARY}
+            placeholderTextColor={TEXT_MUTED}
             autoCapitalize="none"
           />
 
-          <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>EMAIL</Text>
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={setEmail}
             placeholder="your@email.com"
-            placeholderTextColor={TEXT_SECONDARY}
+            placeholderTextColor={TEXT_MUTED}
             keyboardType="email-address"
             autoCapitalize="none"
           />
 
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>PASSWORD</Text>
           <TextInput
             style={styles.input}
             value={password}
             onChangeText={setPassword}
             placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
-            placeholderTextColor={TEXT_SECONDARY}
+            placeholderTextColor={TEXT_MUTED}
             secureTextEntry
           />
 
-          <Text style={styles.label}>Role</Text>
+          <Text style={styles.label}>ROLE</Text>
           <View style={styles.roleRow}>
-            {ROLES.map((r) => (
-              <Pressable
-                key={r.key}
-                onPress={() => setRole(r.key)}
-                style={[styles.roleBtn, role === r.key && styles.roleBtnActive]}
-              >
-                <Text style={[styles.roleBtnText, role === r.key && styles.roleBtnTextActive]}>{r.label}</Text>
-              </Pressable>
-            ))}
+            {ROLES.map((r) => {
+              const isActive = role === r.key;
+              const roleColor = RoleThemes[r.key].primary;
+              return (
+                <Pressable
+                  key={r.key}
+                  onPress={() => setRole(r.key)}
+                  style={[
+                    styles.roleBtn,
+                    isActive && {
+                      borderColor: roleColor,
+                      backgroundColor: `${roleColor}15`,
+                    },
+                  ]}
+                >
+                  {/* Small status dot */}
+                  <View
+                    style={[
+                      styles.roleDot,
+                      { backgroundColor: isActive ? roleColor : TEXT_MUTED },
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      styles.roleBtnText,
+                      isActive && { color: roleColor, fontWeight: '700' },
+                    ]}
+                  >
+                    {r.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
 
           <PrimaryButton title="Save" onPress={handleSignup} style={styles.button} />
@@ -129,7 +191,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: OFF_WHITE,
+    backgroundColor: BG_BASE,
   },
   scroll: {
     flexGrow: 1,
@@ -138,46 +200,74 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xl,
   },
   card: {
-    backgroundColor: WHITE,
+    backgroundColor: BG_SURFACE,
     borderWidth: 1,
     borderColor: BORDER,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.sm,
     padding: Spacing.xl,
-    maxWidth: 400,
+    maxWidth: 440,
     width: '100%',
     alignSelf: 'center',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  cardAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: ACCENT_AMBER,
   },
   title: {
     fontSize: FontSizes.title,
     fontWeight: '700',
     color: TEXT_PRIMARY,
+    fontFamily: Fonts.heading,
+    letterSpacing: 2,
     marginBottom: Spacing.xs,
+    marginTop: Spacing.sm,
   },
   subtitle: {
     fontSize: FontSizes.sm,
     color: TEXT_SECONDARY,
+    fontFamily: Fonts.body,
     marginBottom: Spacing.lg,
+    letterSpacing: 0.3,
+  },
+  errorBox: {
+    backgroundColor: 'rgba(255,59,59,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,59,59,0.25)',
+    borderRadius: Radius.sm,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
   },
   errorText: {
     fontSize: FontSizes.sm,
-    color: BRAND_RED,
-    marginBottom: Spacing.md,
+    color: '#FF3B3B',
+    fontFamily: Fonts.body,
   },
   label: {
-    fontSize: FontSizes.sm,
-    fontWeight: '500',
-    color: TEXT_PRIMARY,
+    fontSize: FontSizes.xs,
+    fontWeight: '600',
+    color: TEXT_SECONDARY,
+    fontFamily: Fonts.heading,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
     marginBottom: Spacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: Radius.md,
+    borderColor: BORDER_SUBTLE,
+    borderBottomColor: BORDER,
+    borderRadius: Radius.sm,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     fontSize: FontSizes.body,
     color: TEXT_PRIMARY,
-    backgroundColor: WHITE,
+    backgroundColor: BG_INPUT,
+    fontFamily: Fonts.body,
     marginBottom: Spacing.md,
   },
   roleRow: {
@@ -187,25 +277,28 @@ const styles = StyleSheet.create({
   },
   roleBtn: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.sm,
-    borderRadius: Radius.md,
+    borderRadius: Radius.sm,
     borderWidth: 1,
-    borderColor: BORDER,
-    alignItems: 'center',
+    borderColor: BORDER_SUBTLE,
+    backgroundColor: BG_INPUT,
   },
-  roleBtnActive: {
-    borderColor: BRAND_RED,
-    backgroundColor: BRAND_RED_SUBTLE,
+  roleDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   roleBtnText: {
     fontSize: FontSizes.sm,
     fontWeight: '500',
     color: TEXT_SECONDARY,
-  },
-  roleBtnTextActive: {
-    color: BRAND_RED,
-    fontWeight: '600',
+    fontFamily: Fonts.body,
+    letterSpacing: 0.5,
   },
   button: {
     marginTop: Spacing.sm,
@@ -220,10 +313,12 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: FontSizes.sm,
     color: TEXT_SECONDARY,
+    fontFamily: Fonts.body,
   },
   link: {
     fontSize: FontSizes.sm,
     fontWeight: '600',
-    color: BRAND_RED,
+    color: ACCENT_AMBER,
+    fontFamily: Fonts.body,
   },
 });

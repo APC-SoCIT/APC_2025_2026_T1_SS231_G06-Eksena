@@ -3,7 +3,21 @@ import { View, Text, TextInput, FlatList, Alert, StyleSheet, Pressable } from 'r
 import { supabase } from '@/lib/supabase';
 import { PrimaryButton } from '@/components/primary-button';
 import { useRoleTheme } from '@/context/role-theme';
-import { Spacing, FontSizes, TEXT_PRIMARY, TEXT_SECONDARY, WHITE, OFF_WHITE, BORDER, Radius, CardShadow } from '@/constants/theme';
+import {
+  Spacing,
+  FontSizes,
+  Fonts,
+  Radius,
+  BG_BASE,
+  BG_SURFACE,
+  BG_INPUT,
+  ACCENT_AMBER,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_MUTED,
+  BORDER,
+  BORDER_SUBTLE,
+} from '@/constants/theme';
 
 interface Report {
   id: string;
@@ -29,11 +43,11 @@ export default function ReportsScreen() {
       .from('reports')
       .select('*')
       .order('created_at', { ascending: false });
-    
+
     if (error) {
       Alert.alert('Error', error.message);
     } else {
-      setReports(data || []); 
+      setReports(data || []);
     }
   };
 
@@ -51,39 +65,56 @@ export default function ReportsScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={[styles.card, CardShadow]}>
+      {/* New Ticket Card */}
+      <View style={styles.card}>
+        <View style={styles.cardAccent} />
         <Text style={styles.sectionTitle}>
-          {editingId ? 'Editing Ticket' : 'New Ticket'}
+          {editingId ? 'EDITING TICKET' : 'NEW TICKET'}
         </Text>
-        <Text style={styles.label}>Title</Text>
+
+        <Text style={styles.label}>TITLE</Text>
         <TextInput
-          placeholder="Title"
-          placeholderTextColor={TEXT_SECONDARY}
+          placeholder="Incident title"
+          placeholderTextColor={TEXT_MUTED}
           value={title}
           onChangeText={setTitle}
           style={styles.input}
         />
-        <Text style={styles.label}>Details</Text>
+
+        <Text style={styles.label}>DETAILS</Text>
         <TextInput
-          placeholder="Details"
-          placeholderTextColor={TEXT_SECONDARY}
+          placeholder="Incident details and observations"
+          placeholderTextColor={TEXT_MUTED}
           value={content}
           onChangeText={setContent}
           style={[styles.input, styles.inputMultiline]}
           multiline
         />
+
         <PrimaryButton title="Save Report" onPress={handleSave} style={styles.button} />
       </View>
 
-      <Text style={styles.listTitle}>All Tickets</Text>
+      {/* All Tickets header */}
+      <View style={styles.listHeader}>
+        <Text style={styles.listTitle}>ALL TICKETS</Text>
+        <Text style={styles.listCount}>{reports.length} records</Text>
+      </View>
+
+      {/* Ticket list */}
       <FlatList
         data={reports}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <View style={[styles.reportCard, CardShadow]}>
+          <View style={styles.reportCard}>
+            <View style={[styles.reportCardAccent, { backgroundColor: theme.primary }]} />
             <Text style={styles.reportTitle}>{item.title}</Text>
             <Text style={styles.reportContent}>{item.content}</Text>
+            {item.created_at ? (
+              <Text style={styles.reportDate}>
+                {new Date(item.created_at).toLocaleString()}
+              </Text>
+            ) : null}
             <Pressable
               onPress={() => {
                 setEditingId(item.id);
@@ -95,15 +126,16 @@ export default function ReportsScreen() {
               style={({ pressed }) => [
                 styles.editBtn,
                 { borderColor: theme.primary },
-                pressed && [styles.editBtnPressed, { backgroundColor: theme.primary }],
+                pressed && { backgroundColor: `${theme.primary}15` },
               ]}
             >
-              <Text style={[
-                styles.editBtnText,
-                { color: theme.primary },
-                pressedEditId === item.id && styles.editBtnTextPressed,
-              ]}>
-                Edit
+              <Text
+                style={[
+                  styles.editBtnText,
+                  { color: theme.primary },
+                ]}
+              >
+                EDIT
               </Text>
             </Pressable>
           </View>
@@ -117,37 +149,57 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     padding: Spacing.lg,
-    backgroundColor: OFF_WHITE,
+    backgroundColor: BG_BASE,
   },
+
+  /* ── Form Card ─────────────────────────────────────────── */
   card: {
-    backgroundColor: WHITE,
+    backgroundColor: BG_SURFACE,
     borderWidth: 1,
     borderColor: BORDER,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.sm,
     padding: Spacing.lg,
     marginBottom: Spacing.lg,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  cardAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: ACCENT_AMBER,
   },
   sectionTitle: {
     fontSize: FontSizes.subtitle,
     fontWeight: '600',
     color: TEXT_PRIMARY,
+    fontFamily: Fonts.heading,
+    letterSpacing: 2,
     marginBottom: Spacing.md,
+    marginTop: Spacing.xs,
   },
   label: {
-    fontSize: FontSizes.sm,
-    fontWeight: '500',
-    color: TEXT_PRIMARY,
+    fontSize: FontSizes.xs,
+    fontWeight: '600',
+    color: TEXT_SECONDARY,
+    fontFamily: Fonts.heading,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
     marginBottom: Spacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: Radius.md,
+    borderColor: BORDER_SUBTLE,
+    borderBottomColor: BORDER,
+    borderRadius: Radius.sm,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     fontSize: FontSizes.body,
     color: TEXT_PRIMARY,
-    backgroundColor: WHITE,
+    backgroundColor: BG_INPUT,
+    fontFamily: Fonts.body,
     marginBottom: Spacing.md,
   },
   inputMultiline: {
@@ -157,47 +209,85 @@ const styles = StyleSheet.create({
   button: {
     marginTop: Spacing.sm,
   },
+
+  /* ── List Header ───────────────────────────────────────── */
+  listHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+  },
   listTitle: {
     fontSize: FontSizes.body,
     fontWeight: '600',
     color: TEXT_PRIMARY,
-    marginBottom: Spacing.md,
+    fontFamily: Fonts.heading,
+    letterSpacing: 2,
+  },
+  listCount: {
+    fontSize: FontSizes.xs,
+    color: TEXT_MUTED,
+    fontFamily: Fonts.body,
+    letterSpacing: 0.5,
   },
   listContent: {
     paddingBottom: Spacing.xl,
   },
+
+  /* ── Report Cards ──────────────────────────────────────── */
   reportCard: {
-    backgroundColor: WHITE,
+    backgroundColor: BG_SURFACE,
     borderWidth: 1,
     borderColor: BORDER,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.sm,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  reportCardAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
   },
   reportTitle: {
     fontSize: FontSizes.body,
     fontWeight: '600',
     color: TEXT_PRIMARY,
+    fontFamily: Fonts.heading,
+    letterSpacing: 0.5,
     marginBottom: Spacing.xs,
+    marginTop: Spacing.xs,
   },
   reportContent: {
     fontSize: FontSizes.sm,
     color: TEXT_SECONDARY,
+    fontFamily: Fonts.body,
+    marginBottom: Spacing.sm,
+    lineHeight: 20,
+    letterSpacing: 0.3,
+  },
+  reportDate: {
+    fontSize: FontSizes.xs,
+    color: TEXT_MUTED,
+    fontFamily: Fonts.mono,
     marginBottom: Spacing.md,
+    letterSpacing: 0.5,
   },
   editBtn: {
     alignSelf: 'flex-start',
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
     borderWidth: 1,
-    borderRadius: Radius.md,
+    borderRadius: Radius.sm,
+    backgroundColor: 'transparent',
   },
-  editBtnPressed: {},
   editBtnText: {
-    fontSize: FontSizes.sm,
-    fontWeight: '600',
-  },
-  editBtnTextPressed: {
-    color: WHITE,
+    fontSize: FontSizes.xs,
+    fontWeight: '700',
+    fontFamily: Fonts.heading,
+    letterSpacing: 1.5,
   },
 });

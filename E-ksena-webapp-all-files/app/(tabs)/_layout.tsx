@@ -1,9 +1,15 @@
 import { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
-import { StyleSheet, Animated } from 'react-native';
+import { Platform, StyleSheet, Animated, View } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
-import { LinearGradient } from 'expo-linear-gradient';
-import { WHITE, TEXT_SECONDARY, FontSizes } from '@/constants/theme';
+import {
+  BG_BASE,
+  BG_SURFACE,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  BORDER,
+  FontSizes,
+  Fonts,
+} from '@/constants/theme';
 import { useAuth } from '@/context/auth';
 import { useRoleTheme } from '@/context/role-theme';
 import { RoleBadge } from '@/components/role-badge';
@@ -34,27 +40,43 @@ export default function TabLayout() {
 
   return (
     <Animated.View style={[styles.wrapper, { opacity: fade }]}>
-      <LinearGradient
-        colors={[theme.gradientStart, theme.gradientEnd]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
+      {/* Role accent stripe at top */}
+      <View style={[styles.accentStripe, { backgroundColor: theme.primary }]} />
       <Drawer
         screenOptions={{
           drawerPosition: 'left',
           headerStyle: {
-            backgroundColor: theme.primary,
+            backgroundColor: BG_SURFACE,
             borderBottomWidth: 1,
-            borderBottomColor: 'rgba(255,255,255,0.2)',
+            borderBottomColor: BORDER,
           },
-          headerTintColor: WHITE,
-          headerTitleStyle: { fontWeight: '600', fontSize: FontSizes.subtitle },
+          headerTintColor: TEXT_PRIMARY,
+          headerTitleStyle: {
+            fontWeight: '600',
+            fontSize: FontSizes.subtitle,
+            fontFamily: Fonts.heading,
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+          },
           headerRight: () => <RoleBadge />,
           drawerActiveTintColor: theme.primary,
           drawerInactiveTintColor: TEXT_SECONDARY,
-          drawerLabelStyle: { fontSize: FontSizes.body, fontWeight: '500' },
-          drawerStyle: { backgroundColor: 'rgba(255,255,255,0.95)' },
+          drawerLabelStyle: {
+            fontSize: FontSizes.body,
+            fontWeight: '500',
+            fontFamily: Fonts.body,
+            letterSpacing: 1,
+            textTransform: 'uppercase',
+          },
+          drawerStyle: {
+            backgroundColor: BG_SURFACE,
+            borderRightWidth: 1,
+            borderRightColor: BORDER,
+          },
+          drawerItemStyle: {
+            borderRadius: 2,
+          },
+          drawerActiveBackgroundColor: 'rgba(255,107,43,0.08)',
         }}
       >
         <Drawer.Screen name="index" options={{ title: 'Map', drawerLabel: 'Map' }} />
@@ -69,5 +91,10 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
+    backgroundColor: BG_BASE,
+  },
+  accentStripe: {
+    height: 3,
+    width: '100%',
   },
 });

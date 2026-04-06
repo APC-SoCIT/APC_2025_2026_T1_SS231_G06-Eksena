@@ -3,7 +3,21 @@ import { View, Text, TextInput, StyleSheet, ScrollView, Alert, Platform } from '
 import { useAuth } from '@/context/auth';
 import { useRoleTheme } from '@/context/role-theme';
 import { PrimaryButton } from '@/components/primary-button';
-import { Spacing, FontSizes, TEXT_PRIMARY, TEXT_SECONDARY, WHITE, OFF_WHITE, BORDER, Radius, CardShadow } from '@/constants/theme';
+import {
+  Spacing,
+  FontSizes,
+  Fonts,
+  Radius,
+  BG_BASE,
+  BG_SURFACE,
+  BG_INPUT,
+  ACCENT_AMBER,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_MUTED,
+  BORDER,
+  BORDER_SUBTLE,
+} from '@/constants/theme';
 
 export default function ProfileScreen() {
   const { user, logout, updateProfile } = useAuth();
@@ -31,33 +45,55 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.title}>Account</Text>
-      <View style={[styles.card, CardShadow]}>
+      <Text style={styles.pageTitle}>ACCOUNT</Text>
+
+      <View style={styles.card}>
+        {/* Role-colored accent line */}
+        <View style={[styles.cardAccent, { backgroundColor: theme.primary }]} />
+
+        {/* Role badge row */}
         <View style={styles.fieldRow}>
-          <Text style={styles.label}>Role</Text>
-          <Text style={[styles.value, { color: theme.primary, fontWeight: '600' }]}>{theme.displayName}</Text>
+          <Text style={styles.label}>ROLE</Text>
+          <View style={styles.roleValueRow}>
+            <View style={[styles.roleDot, { backgroundColor: theme.primary, shadowColor: theme.primary }]} />
+            <Text
+              style={[
+                styles.roleValue,
+                {
+                  color: theme.primary,
+                },
+              ]}
+            >
+              {theme.displayName}
+            </Text>
+          </View>
         </View>
 
+        {/* Divider */}
+        <View style={styles.divider} />
+
+        {/* Username */}
         <View style={styles.fieldRow}>
-          <Text style={styles.label}>Username</Text>
+          <Text style={styles.label}>USERNAME</Text>
           <TextInput
             style={styles.input}
             value={username}
             onChangeText={setUsername}
             placeholder="Username"
-            placeholderTextColor={TEXT_SECONDARY}
+            placeholderTextColor={TEXT_MUTED}
             autoCapitalize="none"
           />
         </View>
 
+        {/* Email */}
         <View style={styles.fieldRow}>
-          <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>EMAIL</Text>
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={setEmail}
             placeholder="your@email.com"
-            placeholderTextColor={TEXT_SECONDARY}
+            placeholderTextColor={TEXT_MUTED}
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -65,7 +101,14 @@ export default function ProfileScreen() {
 
         <PrimaryButton title="Save changes" onPress={handleSave} style={styles.saveBtn} />
       </View>
-      <PrimaryButton title="Log out" onPress={handleLogout} style={styles.logoutBtn} />
+
+      {/* Logout – ghost/outline destructive style */}
+      <PrimaryButton
+        title="Log out"
+        onPress={handleLogout}
+        ghost
+        style={styles.logoutBtn}
+      />
     </ScrollView>
   );
 }
@@ -75,26 +118,38 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: Spacing.lg,
     paddingBottom: Spacing.xl,
-    backgroundColor: OFF_WHITE,
+    backgroundColor: BG_BASE,
     alignItems: 'center',
   },
-  title: {
+  pageTitle: {
     fontSize: FontSizes.subtitle,
     fontWeight: '600',
     color: TEXT_PRIMARY,
+    fontFamily: Fonts.heading,
+    letterSpacing: 2,
     marginBottom: Spacing.md,
     width: '100%',
     maxWidth: 560,
   },
   card: {
-    backgroundColor: WHITE,
+    backgroundColor: BG_SURFACE,
     borderWidth: 1,
     borderColor: BORDER,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.sm,
     padding: Spacing.lg,
+    paddingTop: Spacing.lg + 2,
     marginBottom: Spacing.lg,
     width: '100%',
     maxWidth: 560,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  cardAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
   },
   fieldRow: {
     flexDirection: Platform.OS === 'web' ? 'row' : 'column',
@@ -103,25 +158,51 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   label: {
-    fontSize: FontSizes.sm,
+    fontSize: FontSizes.xs,
+    fontWeight: '600',
     color: TEXT_SECONDARY,
+    fontFamily: Fonts.heading,
+    letterSpacing: 2,
     minWidth: Platform.OS === 'web' ? 120 : undefined,
   },
-  value: {
-    fontSize: FontSizes.body,
-    fontWeight: '500',
-    color: TEXT_PRIMARY,
+  roleValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
     flex: Platform.OS === 'web' ? 1 : undefined,
+  },
+  roleDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  roleValue: {
+    fontSize: FontSizes.body,
+    fontWeight: '700',
+    fontFamily: Fonts.heading,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: BORDER_SUBTLE,
+    marginVertical: Spacing.md,
   },
   input: {
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: Radius.md,
+    borderColor: BORDER_SUBTLE,
+    borderBottomColor: BORDER,
+    borderRadius: Radius.sm,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     fontSize: FontSizes.body,
     color: TEXT_PRIMARY,
-    backgroundColor: WHITE,
+    backgroundColor: BG_INPUT,
+    fontFamily: Fonts.body,
     flex: Platform.OS === 'web' ? 1 : undefined,
   },
   saveBtn: {

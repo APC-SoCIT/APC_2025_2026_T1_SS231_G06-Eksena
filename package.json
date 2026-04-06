@@ -1,0 +1,15 @@
+{
+  "name": "e-ksena-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "install:all": "npm install && npm --prefix E-ksena_Backend install && npm --prefix E-ksena-webapp-all-files install",
+    "start": "concurrently -n backend,frontend -c yellow,cyan \"npm --prefix E-ksena_Backend start\" \"npm --prefix E-ksena-webapp-all-files start\"",
+    "start:web": "concurrently -n backend,frontend-web -c yellow,cyan \"npm --prefix E-ksena_Backend start\" \"npm --prefix E-ksena-webapp-all-files run web\"",
+    "start:backend": "npm --prefix E-ksena_Backend start",
+    "start:frontend": "npm --prefix E-ksena-webapp-all-files start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

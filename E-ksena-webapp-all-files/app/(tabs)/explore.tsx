@@ -3,7 +3,21 @@ import { View, Text, ScrollView, TextInput, StyleSheet, Alert } from 'react-nati
 import * as Location from 'expo-location';
 import { supabase } from '@/lib/supabase';
 import { PrimaryButton } from '@/components/primary-button';
-import { Spacing, FontSizes, BRAND_RED, TEXT_PRIMARY, TEXT_SECONDARY, WHITE, OFF_WHITE, BORDER, Radius, CardShadow } from '@/constants/theme';
+import {
+  Spacing,
+  FontSizes,
+  Fonts,
+  Radius,
+  BG_BASE,
+  BG_SURFACE,
+  BG_INPUT,
+  ACCENT_AMBER,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_MUTED,
+  BORDER,
+  BORDER_SUBTLE,
+} from '@/constants/theme';
 
 interface Conversation {
   id: number;
@@ -22,7 +36,7 @@ export default function ExploreScreen() {
         Alert.alert("Permission Denied", "Location is required to save reports.");
         return;
       }
-      
+
       const loc = await Location.getCurrentPositionAsync({});
 
       const { data: convData, error: convError } = await supabase
@@ -42,8 +56,8 @@ export default function ExploreScreen() {
         .from('messages')
         .insert([
           {
-            conversation_id: conv.id, 
-            content: content, 
+            conversation_id: conv.id,
+            content: content,
             sender: 'incoming',
             latitude: loc.coords.latitude,
             longitude: loc.coords.longitude
@@ -56,7 +70,7 @@ export default function ExploreScreen() {
       setPhone('');
       setMessage('');
 
-    } catch (err: unknown) { 
+    } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       console.error("Save Error:", errorMessage);
       Alert.alert("Error", errorMessage);
@@ -65,32 +79,35 @@ export default function ExploreScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={[styles.card, CardShadow]}>
-        <Text style={styles.title}>New Report</Text>
-        
-        <Text style={styles.label}>Phone Number</Text>
+      <View style={styles.card}>
+        {/* Amber accent line */}
+        <View style={styles.cardAccent} />
+
+        <Text style={styles.title}>NEW REPORT</Text>
+
+        <Text style={styles.label}>PHONE NUMBER</Text>
         <TextInput
           placeholder="Phone Number"
-          placeholderTextColor={TEXT_SECONDARY}
+          placeholderTextColor={TEXT_MUTED}
           value={phone}
           onChangeText={(text: string) => setPhone(text)}
           style={styles.input}
           keyboardType="phone-pad"
         />
-        
-        <Text style={styles.label}>Message Content</Text>
+
+        <Text style={styles.label}>MESSAGE CONTENT</Text>
         <TextInput
           placeholder="Message Content"
-          placeholderTextColor={TEXT_SECONDARY}
+          placeholderTextColor={TEXT_MUTED}
           value={message}
           onChangeText={(text: string) => setMessage(text)}
           multiline
           style={[styles.input, styles.inputMultiline]}
         />
 
-        <PrimaryButton 
-          title="Send Report" 
-          onPress={() => handleSaveSMS(phone, message)} 
+        <PrimaryButton
+          title="Send Report"
+          onPress={() => handleSaveSMS(phone, message)}
           style={styles.button}
         />
       </View>
@@ -103,36 +120,54 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: Spacing.lg,
     paddingBottom: Spacing.xl,
-    backgroundColor: OFF_WHITE,
+    backgroundColor: BG_BASE,
   },
   card: {
-    backgroundColor: WHITE,
+    backgroundColor: BG_SURFACE,
     borderWidth: 1,
     borderColor: BORDER,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.sm,
     padding: Spacing.lg,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  cardAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: ACCENT_AMBER,
   },
   title: {
     fontSize: FontSizes.subtitle,
     fontWeight: '600',
     color: TEXT_PRIMARY,
+    fontFamily: Fonts.heading,
+    letterSpacing: 2,
     marginBottom: Spacing.lg,
+    marginTop: Spacing.xs,
   },
   label: {
-    fontSize: FontSizes.sm,
-    fontWeight: '500',
-    color: TEXT_PRIMARY,
+    fontSize: FontSizes.xs,
+    fontWeight: '600',
+    color: TEXT_SECONDARY,
+    fontFamily: Fonts.heading,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
     marginBottom: Spacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: Radius.md,
+    borderColor: BORDER_SUBTLE,
+    borderBottomColor: BORDER,
+    borderRadius: Radius.sm,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     fontSize: FontSizes.body,
     color: TEXT_PRIMARY,
-    backgroundColor: WHITE,
+    backgroundColor: BG_INPUT,
+    fontFamily: Fonts.body,
     marginBottom: Spacing.md,
   },
   inputMultiline: {

@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
 import { useRoleTheme } from '@/context/role-theme';
-import { FontSizes, Radius } from '@/constants/theme';
+import { useAuth } from '@/context/auth';
+import { FontSizes, Fonts, Radius, Spacing, TEXT_PRIMARY, BG_SURFACE, BORDER } from '@/constants/theme';
 
 export function RoleBadge() {
   const theme = useRoleTheme();
+  const { user } = useAuth();
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.9)).current;
 
@@ -24,48 +26,68 @@ export function RoleBadge() {
     ]).start();
   }, [opacity, scale]);
 
+  // Set the web CSS class for the pulsing glow animation
+  useEffect(() => {
+    // The pulse animation is handled by CSS class .role-badge-glow
+  }, []);
+
   return (
-    <Animated.View
-      style={[
-        styles.badge,
-        {
-          backgroundColor: theme.badgeBg,
-          borderColor: theme.primary,
-          opacity,
-          transform: [{ scale }],
-        },
-      ]}
-    >
-      <View style={[styles.glow, { shadowColor: theme.primary }]} />
-      <Text style={styles.label} numberOfLines={1}>
-        {theme.displayName}
-      </Text>
-    </Animated.View>
+    <View style={styles.container}>
+      {user ? (
+        <Text style={styles.username} numberOfLines={1}>
+          {user.username}
+        </Text>
+      ) : null}
+      <Animated.View
+        style={[
+          styles.badge,
+          {
+            backgroundColor: theme.badgeBg,
+            borderColor: theme.primary,
+            opacity,
+            transform: [{ scale }],
+            shadowColor: theme.primary,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.5,
+            shadowRadius: 8,
+            elevation: 4,
+          },
+        ]}
+      >
+        <Text style={[styles.label, { color: theme.primary }]} numberOfLines={1}>
+          {theme.displayName}
+        </Text>
+      </Animated.View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: Platform.OS === 'web' ? 16 : 8,
+    gap: Spacing.sm,
+  },
+  username: {
+    color: TEXT_PRIMARY,
+    fontSize: FontSizes.xs,
+    fontFamily: Fonts.body,
+    letterSpacing: 0.5,
+    opacity: 0.7,
+  },
   badge: {
-    marginRight: Platform.OS === 'web' ? 12 : 8,
-    paddingVertical: 4,
+    paddingVertical: 3,
     paddingHorizontal: 10,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.sm,
     borderWidth: 1,
     overflow: 'hidden',
   },
-  glow: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: Radius.lg,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
-    elevation: 2,
-  },
   label: {
-    color: '#fff',
     fontSize: FontSizes.xs,
     fontWeight: '700',
-    letterSpacing: 0.3,
-    textTransform: 'capitalize',
+    fontFamily: Fonts.heading,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
 });
