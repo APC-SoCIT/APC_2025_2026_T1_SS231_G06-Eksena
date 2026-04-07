@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, Alert, Platform } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/auth';
 import { useRoleTheme } from '@/context/role-theme';
 import { PrimaryButton } from '@/components/primary-button';
@@ -22,6 +23,7 @@ import {
 export default function ProfileScreen() {
   const { user, logout, updateProfile } = useAuth();
   const theme = useRoleTheme();
+  const router = useRouter();
   const [username, setUsername] = useState(user?.username ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
 
@@ -41,6 +43,7 @@ export default function ProfileScreen() {
 
   const handleLogout = () => {
     logout();
+    router.replace('/login');
   };
 
   return (

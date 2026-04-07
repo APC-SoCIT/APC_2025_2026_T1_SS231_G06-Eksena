@@ -136,6 +136,7 @@ function RootStack() {
   return (
     <Stack screenOptions={headerOptions}>
       <Stack.Screen name="index" options={{ title: 'Responder log in', headerShown: true }} />
+      <Stack.Screen name="login" options={{ title: 'Responder log in', headerShown: true }} />
       <Stack.Screen name="signup" options={{ title: 'Responder registration', headerShown: true }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Details' }} />
@@ -146,9 +147,9 @@ function RootStack() {
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isResponder } = useAuth();
-  const isPublicRoute = pathname === '/' || pathname === '/signup';
+  const isPublicRoute = pathname === '/' || pathname === '/login' || pathname === '/signup';
   if (!isResponder && !isPublicRoute) {
-    return <Redirect href="/" />;
+    return <Redirect href="/login" />;
   }
   return <>{children}</>;
 }

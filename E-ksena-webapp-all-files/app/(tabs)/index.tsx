@@ -24,13 +24,14 @@ const MOA_COORDS = { lat: 14.5351, lng: 120.9820 };
 
 export default function MapScreen() {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
 
   const mapHeight = Platform.OS === 'web' ? 520 : 300;
   const containerStyle = useMemo(() => ({ width: '100%', height: mapHeight }), [mapHeight]);
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: 'AIzaSyCzcIhAoj9O07jszQt4knTyvb9fcUTAfiI',
+    googleMapsApiKey,
   });
 
   useEffect(() => {
@@ -95,10 +96,22 @@ export default function MapScreen() {
     };
   }, []);
 
+  if (!googleMapsApiKey) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorIcon}>!</Text>
+        <Text style={styles.errorText}>MAP KEY MISSING</Text>
+        <Text style={styles.errorDetail}>
+          Set EXPO_PUBLIC_GOOGLE_MAPS_API_KEY before building or running the app.
+        </Text>
+      </View>
+    );
+  }
+
   if (loadError) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorIcon}>⚠</Text>
+        <Text style={styles.errorIcon}>!</Text>
         <Text style={styles.errorText}>MAP SYSTEM ERROR</Text>
         <Text style={styles.errorDetail}>{loadError.message}</Text>
       </View>
@@ -136,7 +149,7 @@ export default function MapScreen() {
                 <Marker
                   position={location}
                   label="You"
-                  icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                  icon="https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
                 />
               )}
               <Marker position={MOA_COORDS} label="MOA" title="SM Mall of Asia" />

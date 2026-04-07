@@ -20,10 +20,8 @@ import {
   Radius,
   BG_BASE,
   BG_SURFACE,
-  BG_ELEVATED,
   BG_INPUT,
   ACCENT_AMBER,
-  ACCENT_AMBER_SUBTLE,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TEXT_MUTED,
@@ -167,7 +165,7 @@ export default function LoginScreen() {
 
             {/* Demo credentials – terminal style */}
             <View style={styles.demoBox}>
-              <Text style={styles.demoLabel}>// DEMO ACCOUNTS</Text>
+              <Text style={styles.demoLabel}>DEMO ACCOUNTS</Text>
               <Text style={styles.demoText}>
                 <Text style={styles.demoKey}>user:</Text>{' '}
                 <Text style={styles.demoValue}>police</Text>
@@ -181,7 +179,7 @@ export default function LoginScreen() {
                 <Text style={styles.demoValue}>demo123</Text>
               </Text>
               <Text style={[styles.demoText, { marginTop: 6 }]}>
-                <Text style={styles.demoKey}>// Or use your registered account</Text>
+                <Text style={styles.demoKey}>Or use your registered account</Text>
               </Text>
             </View>
 

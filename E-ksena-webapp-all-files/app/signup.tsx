@@ -72,7 +72,7 @@ export default function SignupScreen() {
 
     try {
       await registerUser({ email: e, username: u, password: p, role });
-      router.replace('/?registered=1');
+      router.replace('/login?registered=1');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Registration failed. Please try again.';
       setError(message);
@@ -176,7 +176,7 @@ export default function SignupScreen() {
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>Already have an account? </Text>
-            <Link href="/" asChild>
+            <Link href="/login" asChild>
               <Pressable hitSlop={8}>
                 <Text style={styles.link}>Log in</Text>
               </Pressable>

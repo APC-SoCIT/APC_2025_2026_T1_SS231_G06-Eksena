@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Platform, StyleSheet, Animated, View } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
+import { Redirect } from 'expo-router';
 import {
   BG_BASE,
   BG_SURFACE,
@@ -35,7 +36,7 @@ export default function TabLayout() {
   }, [theme.themeClass]);
 
   if (!isResponder) {
-    return null;
+    return <Redirect href="/login" />;
   }
 
   return (

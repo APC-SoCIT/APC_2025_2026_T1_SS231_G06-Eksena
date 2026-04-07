@@ -1,8 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Replace these with the values from your Supabase Dashboard 
-// (Project Settings > API)
-const supabaseUrl = 'https://cwhduwianpugjbnqzmhs.supabase.co';
-const supabaseAnonKey = 'sb_publishable_oaawhfNpHS5iLqjIVTxxsg_VO9_Zwxv';
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+	throw new Error(
+		'Missing EXPO_PUBLIC_SUPABASE_URL or EXPO_PUBLIC_SUPABASE_ANON_KEY. Set them in your environment before starting Expo.'
+	);
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
