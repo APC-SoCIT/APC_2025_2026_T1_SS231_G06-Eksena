@@ -1,224 +1,255 @@
-# E-ksena Local Development Guide
+# E-ksena Local Development Guide (macOS First)
 
-This repository contains two main applications:
+This repository has two apps that are developed together:
 
-- `E-ksena_Backend` (Express + Supabase)
-- `E-ksena-webapp-all-files` (Expo Router app for web/mobile)
+- E-ksena_Backend (Express + Supabase)
+- E-ksena-webapp-all-files (Expo Router frontend for web/mobile)
 
-The root folder now includes workspace-level scripts so you can install and run both apps with one command.
+The root workspace scripts install and run both apps from one command.
 
-## Project layout
+## What was completed in this setup session
+
+The following actions were executed and verified on this clone (April 21, 2026):
+
+1. Checked platform and toolchain.
+2. Created local env files from templates:
+	 - E-ksena_Backend/.env
+	 - E-ksena-webapp-all-files/.env
+3. Installed all dependencies with one root command.
+4. Smoke-tested backend + frontend startup via npm run start:web.
+5. Verified backend endpoints locally:
+	 - GET /healthz returned success
+	 - GET /version returned success
+	 - GET /readyz returned degraded (expected while using placeholder Supabase values)
+
+Detected environment on this machine:
+
+- OS: macOS 15.3.1 (Apple Silicon arm64)
+- Node: v25.9.0
+- npm: 11.12.1
+- Homebrew: present
+
+## Repository layout
 
 ```text
 APC_2025_2026_T1_SS231_G06-Eksena/
 	E-ksena_Backend/
 	E-ksena-webapp-all-files/
-	package.json                # root workspace scripts
-	.gitignore                 # root ignore rules
+	package.json
+	README.md
 ```
 
-## Prerequisites
+## Prerequisites for macOS developers
 
-- Node.js LTS (recommended: Node 20.x)
-- npm (comes with Node.js)
+Required:
+
 - Git
-- PowerShell (Windows) or a POSIX shell (macOS/Linux)
+- Node.js + npm
 
-Optional:
+Recommended:
 
-- Expo Go app (for device testing)
-- Android Studio / Xcode (for emulator/simulator testing)
+- Node 20 LTS for best compatibility with Expo and deployment defaults
+- Homebrew for installing local tools quickly
 
-## Quick start (clean clone on a new computer)
+Optional for device/emulator testing:
 
-### 1. Clone and enter the repository
+- Expo Go (real device)
+- Xcode (iOS simulator)
+- Android Studio (Android emulator)
 
-```powershell
+## 1) Clone the repository
+
+```bash
 git clone <your-repo-url>
-Set-Location "APC_2025_2026_T1_SS231_G06-Eksena"
+cd APC_2025_2026_T1_SS231_G06-Eksena
 ```
 
-### 2. Configure backend environment variables
+## 2) Configure environment variables
 
-Create a local backend env file from the template:
+Create local env files from templates:
 
-```powershell
-Copy-Item .\E-ksena_Backend\.env.example .\E-ksena_Backend\.env
+```bash
+cp E-ksena_Backend/.env.example E-ksena_Backend/.env
+cp E-ksena-webapp-all-files/.env.example E-ksena-webapp-all-files/.env
 ```
 
-Then edit `E-ksena_Backend/.env` and set valid values:
+Fill the files with real values.
+
+Backend env file: E-ksena_Backend/.env
 
 ```env
 SUPABASE_URL=https://your-project-ref.supabase.co
 SUPABASE_SERVICE_KEY=your-service-role-key
+NODE_ENV=development
+PORT=3000
+CORS_ORIGINS=http://localhost:8081,http://localhost:19006,http://localhost:3000
+LOG_REQUEST_BODIES=true
+API_KEYS=dev-local-key
+APP_VERSION=1.0.0
+RELEASE_ID=local
+IP_RATE_LIMIT_WINDOW_MS=60000
+IP_RATE_LIMIT_MAX=120
+API_KEY_RATE_LIMIT_WINDOW_MS=60000
+API_KEY_RATE_LIMIT_MAX=60
 ```
 
-### 3. Install all dependencies
+Frontend env file: E-ksena-webapp-all-files/.env
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-browser-key
+```
+
+Important notes:
+
+- EXPO_PUBLIC_ values are public at build time; do not place server secrets there.
+- SUPABASE_SERVICE_KEY must stay backend-only.
+- If EXPO_PUBLIC_GOOGLE_MAPS_API_KEY is missing, the map tab shows MAP KEY MISSING.
+
+## 3) Install all dependencies
 
 Run from repository root:
 
-```powershell
+```bash
 npm run install:all
 ```
 
 This installs:
 
-- root tools (`concurrently`)
-- backend dependencies
-- frontend dependencies
+1. Root workspace tools
+2. Backend packages in E-ksena_Backend/node_modules
+3. Frontend packages in E-ksena-webapp-all-files/node_modules
 
-### 4. Start development servers
+Observed during install in this setup run:
 
-Recommended for browser development:
+- Root install succeeded with 0 vulnerabilities
+- Backend install completed with npm audit warnings
+- Frontend install completed with npm audit warnings
 
-```powershell
-npm run start:web
-```
+These warnings are dependency ecosystem warnings and did not block local startup.
 
-Alternative (Expo default start mode):
-
-```powershell
-npm start
-```
-
-## Run modes
+## 4) Run local development
 
 From repository root:
 
-- `npm run start:web`: backend + frontend web mode
-- `npm start`: backend + frontend (Expo default mode)
-- `npm run start:backend`: backend only
-- `npm run start:frontend`: frontend only
-
-From backend folder:
-
-```powershell
-Set-Location .\E-ksena_Backend
-npm start
+```bash
+npm run start:web
 ```
 
-From frontend folder:
+What this does:
 
-```powershell
-Set-Location .\E-ksena-webapp-all-files
-npm run web
+- Starts backend on port 3000
+- Starts Expo web on port 8081
+
+Alternative run modes from root:
+
+```bash
+npm start              # backend + frontend (Expo default)
+npm run start:backend  # backend only
+npm run start:frontend # frontend only
 ```
 
-## Existing local environment migration (important)
+Direct app-level commands:
 
-If you already had this repo before these updates, do this once to align your local setup.
-
-### 1. Pull latest changes and go to repo root
-
-```powershell
-Set-Location "C:\Users\<you>\...\APC_2025_2026_T1_SS231_G06-Eksena"
-git pull
+```bash
+cd E-ksena_Backend && npm start
+cd ../E-ksena-webapp-all-files && npm run web
 ```
 
-### 2. Remove accidental nested installs (if present)
+## 5) Verify the environment after startup
 
-These can happen if npm commands were run from the wrong directory.
+While npm run start:web is running, test backend endpoints:
 
-```powershell
-if (Test-Path .\E-ksena-webapp-all-files\E-ksena_Backend) {
-	Remove-Item -Recurse -Force .\E-ksena-webapp-all-files\E-ksena_Backend
-}
-if (Test-Path .\E-ksena-webapp-all-files\E-ksena-webapp-all-files) {
-	Remove-Item -Recurse -Force .\E-ksena-webapp-all-files\E-ksena-webapp-all-files
-}
+```bash
+curl -sS http://localhost:3000/healthz
+curl -sS http://localhost:3000/version
+curl -sS http://localhost:3000/readyz
 ```
 
-### 3. Reinstall dependencies in correct locations
+Expected:
 
-```powershell
-npm run install:all
+- healthz: success true
+- version: success true and service version
+- readyz: success true only when Supabase values are real and reachable
+
+In this onboarding run, readyz returned degraded because template credentials were used.
+
+## 6) API key behavior for local /api routes
+
+The backend protects /api routes with API key middleware.
+
+Local default from template:
+
+- API_KEYS=dev-local-key
+
+Send requests with either header:
+
+- X-API-Key: dev-local-key
+- Authorization: Bearer dev-local-key
+
+Example:
+
+```bash
+curl -X POST http://localhost:3000/api/reports \
+	-H "Content-Type: application/json" \
+	-H "X-API-Key: dev-local-key" \
+	-d '{"title":"Test","content":"Hello from local"}'
 ```
 
-### 4. If you still see thousands of `node_modules` changes
+## 7) Known warnings and fixes
 
-Backend dependencies should not be tracked by Git. If your local branch still tracks them, untrack once:
+Expo package compatibility warning seen during startup:
 
-```powershell
-git rm -r --cached E-ksena_Backend/node_modules
-git rm --cached E-ksena_Backend/.env
-```
+- expo expected ~54.0.33
+- expo-font expected ~14.0.11
+- expo-router expected ~6.0.23
 
-Then stage intended setup files and commit the cleanup in your branch:
+If you want to align to Expo suggested versions:
 
-```powershell
-git add .gitignore package.json package-lock.json README.md
-git add E-ksena_Backend/.gitignore E-ksena_Backend/.env.example E-ksena_Backend/package.json E-ksena_Backend/package-lock.json
-git add E-ksena-webapp-all-files/package-lock.json
-git commit -m "chore: align local setup scripts and stop tracking backend deps/env"
-```
-
-## How these changes affect existing developers
-
-- Root scripts now orchestrate install/start across both apps.
-- Backend now supports `npm start` (runs `node server.js`).
-- Root and backend `.gitignore` rules now prevent dependency/env file noise.
-- `E-ksena_Backend/.env` should remain local-only.
-- `E-ksena_Backend/.env.example` is now the shared template.
-
-## Verification checklist
-
-After setup, verify all of the following:
-
-1. `npm run start:web` starts both processes without path/script errors.
-2. Backend logs include `E-ksena Backend running on port 3000`.
-3. Frontend starts Expo and serves web successfully.
-4. `git status` does not show tracked changes under `E-ksena_Backend/node_modules`.
-
-## Common issues and fixes
-
-### "Missing script: start" or "Missing script: web"
-
-Cause: command run in wrong folder.
-
-Fix:
-
-- use root scripts from repository root, or
-- `Set-Location` to the correct app folder first.
-
-### "Cannot find module .../server.js"
-
-Cause: backend started from the wrong path.
-
-Fix:
-
-```powershell
-Set-Location .\E-ksena_Backend
-npm start
-```
-
-### `cd` to sibling folder fails
-
-From inside one app folder, move up first:
-
-```powershell
-Set-Location ..
-Set-Location .\E-ksena-webapp-all-files
-```
-
-### Expo dependency compatibility warnings
-
-If Expo reports version mismatches, run:
-
-```powershell
-Set-Location .\E-ksena-webapp-all-files
+```bash
+cd E-ksena-webapp-all-files
 npx expo install expo@54.0.33 expo-font@14.0.11 expo-router@~6.0.23
 ```
 
-## Security notes
+Other common issues:
 
-- Do not commit `E-ksena_Backend/.env`.
-- Use a real Supabase service role key only in local/server environments.
-- If keys were ever committed previously, rotate them in Supabase.
+1. Port already in use
 
-## Day-to-day workflow (recommended)
-
-```powershell
-# from repo root
-npm run install:all   # only when dependencies change
-npm run start:web     # normal daily run
+```bash
+lsof -i :3000
+lsof -i :8081
 ```
+
+2. Missing env values
+- Backend exits if SUPABASE_URL or SUPABASE_SERVICE_KEY is missing.
+- Frontend throws if EXPO_PUBLIC_SUPABASE_URL or EXPO_PUBLIC_SUPABASE_ANON_KEY is missing.
+
+3. Command run from wrong folder
+- Prefer root workspace scripts to avoid path mistakes.
+
+## 8) Security reminders
+
+- Never commit E-ksena_Backend/.env.
+- Never expose SUPABASE_SERVICE_KEY in frontend code.
+- Rotate keys if they were ever shared publicly.
+
+## 9) Day-to-day workflow (macOS)
+
+```bash
+# from repo root
+npm run install:all   # run only when dependencies change
+npm run start:web     # normal local development
+```
+
+## 10) One-time setup checklist for new Mac developers
+
+1. Clone repo and cd into root
+2. Copy both .env.example files to .env
+3. Fill real Supabase and Google Maps values
+4. Run npm run install:all
+5. Run npm run start:web
+6. Verify /healthz and /version
+7. Open Expo web URL and confirm app loads
+
+This README is now the canonical local onboarding flow for macOS in this repository.
